@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Binary Search — Visualizer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12102a;
+    --bg-2:#191533;
+    --card:#201c47;
+    --card-2:#292256;
+    --line:#39316e;
+    --violet:#b28dff;
+    --violet-2:#8c63f2;
+    --amber:#ffc857;
+    --coral:#ff6f8e;
+    --text:#f1eefb;
+    --text-dim:#a49ccb;
+    --shadow: 0 10px 30px rgba(0,0,0,.4);
+    --glow-1: rgba(178,141,255,.16);
+    --glow-2: rgba(255,200,87,.10);
+  }
+  html[data-theme="light"]{
+    --bg:#f7f5fc;
+    --bg-2:#eee9fc;
+    --card:#ffffff;
+    --card-2:#f2edfe;
+    --line:#ddd4f6;
+    --violet:#7b4fe0;
+    --violet-2:#623cc2;
+    --amber:#d99400;
+    --coral:#e0466b;
+    --text:#231f3d;
+    --text-dim:#6d6795;
+    --shadow: 0 10px 26px rgba(45,20,90,.10);
+    --glow-1: rgba(178,141,255,.18);
+    --glow-2: rgba(255,200,87,.16);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 10% 10%, var(--glow-1), transparent 42%),
+      radial-gradient(circle at 90% 20%, var(--glow-2), transparent 45%),
+      linear-gradient(180deg, var(--bg), var(--bg-2));
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    padding: 32px 20px 80px;
+    transition: background .35s ease, color .35s ease;
+  }
+  .wrap{max-width:960px;margin:0 auto;}
+
+  header{
+    display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;
+    gap:16px;margin-bottom:28px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.16em;
+    color:var(--violet);text-transform:uppercase;font-weight:500;
+    display:flex;align-items:center;gap:8px;
+  }
+  .eyebrow::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--violet);box-shadow:0 0 12px var(--violet);}
+  h1{
+    font-family:'Space Grotesk',sans-serif;font-size:2.3rem;font-weight:700;margin:6px 0 4px;
+    letter-spacing:-0.01em;
+  }
+  h1 span{color:var(--violet);}
+  .subtitle{color:var(--text-dim);font-size:.95rem;max-width:560px;}
+  .badge{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-dim);
+    border:1px solid var(--line);padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.02);
+    white-space:nowrap;
+  }
+  .badge b{color:var(--amber);}
+
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .theme-toggle{
+    display:flex;align-items:center;gap:8px;
+    border:1px solid var(--line);border-radius:999px;
+    padding:6px 8px;background:var(--card);cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text-dim);
+    transition:border-color .2s, color .2s;
+  }
+  .theme-toggle:hover{color:var(--text);border-color:var(--violet);}
+  .theme-toggle .icon{
+    width:26px;height:26px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--card-2);font-size:.9rem;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:26px;
+    box-shadow:var(--shadow);
+    margin-bottom:22px;
+  }
+  .card h2{
+    font-family:'Space Grotesk',sans-serif;font-size:1.05rem;margin:0 0 16px;
+    display:flex;align-items:center;gap:8px;color:var(--text);
+  }
+  .card h2 .num{
+    font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--bg);
+    background:var(--violet);width:22px;height:22px;border-radius:6px;
+    display:inline-flex;align-items:center;justify-content:center;font-weight:700;
+  }
+
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;}
+  .field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px;}
+  label{font-size:.75rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:.03em;}
+  input[type=text], input[type=number]{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    padding:11px 13px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.95rem;
+    outline:none;transition:border-color .2s, box-shadow .2s;
+  }
+  input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(178,141,255,.18);}
+  .keyfield{max-width:130px;}
+
+  .hint{font-size:.75rem;color:var(--text-dim);margin-top:8px;font-family:'JetBrains Mono',monospace;}
+  .hint b{color:var(--amber);}
+
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;}
+  button{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.9rem;
+    padding:11px 20px;border-radius:10px;border:none;cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s;
+  }
+  button:active{transform:scale(.96);}
+  .btn-primary{background:linear-gradient(135deg, var(--violet), var(--violet-2));color:#1b1440;box-shadow:0 6px 18px rgba(178,141,255,.32);}
+  .btn-primary:hover{box-shadow:0 8px 22px rgba(178,141,255,.46);}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text-dim);}
+  .btn-ghost:hover{color:var(--text);border-color:var(--text-dim);}
+  button:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+  .speedrow{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+  input[type=range]{accent-color:var(--violet);width:120px;}
+
+  .stage{
+    display:flex;align-items:flex-end;justify-content:center;flex-wrap:wrap;
+    gap:14px;padding:50px 10px 26px;min-height:170px;position:relative;
+  }
+  .box{
+    position:relative;width:64px;height:64px;border-radius:14px;
+    background:var(--card-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.15rem;
+    transition:all .3s ease;
+  }
+  .box .idx{
+    position:absolute;bottom:-22px;font-size:.68rem;color:var(--text-dim);font-weight:400;
+  }
+  .box .pointer{
+    position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    font-size:.66rem;font-family:'JetBrains Mono',monospace;font-weight:700;
+    padding:2px 7px;border-radius:6px;white-space:nowrap;
+  }
+  .box.eliminated{opacity:.25;filter:grayscale(1);transform:scale(.94);}
+  .box.range{border-color:var(--violet-2);background:rgba(178,141,255,.07);}
+  .box.mid{
+    border-color:var(--amber);background:rgba(255,200,87,.14);
+    transform:translateY(-8px) scale(1.06);
+    box-shadow:0 10px 22px rgba(255,200,87,.25);
+  }
+  .box.match{
+    background:linear-gradient(135deg, var(--violet), var(--violet-2));
+    border-color:var(--violet);color:#1b1440;
+    transform:translateY(-10px) scale(1.12);
+    box-shadow:0 14px 28px rgba(178,141,255,.5);
+  }
+  .box.match::after{content:"✓";position:absolute;top:-52px;font-size:1rem;color:var(--violet);}
+  .pointer.low{color:var(--violet);}
+  .pointer.high{color:var(--coral);}
+  .pointer.mid{color:var(--amber);}
+  .empty-msg{color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:.85rem;}
+
+  .log{
+    font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.85;
+    max-height:220px;overflow-y:auto;padding-right:6px;
+  }
+  .log::-webkit-scrollbar{width:6px;}
+  .log::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+  .log .step{color:var(--text-dim);opacity:0;animation:fadeIn .35s ease forwards;}
+  .log .step b{color:var(--text);}
+  .log .step.hit{color:var(--violet);}
+  .log .step.miss{color:var(--coral);}
+  @keyframes fadeIn{ to{opacity:1;} }
+
+  .result-banner{
+    margin-top:16px;padding:16px 18px;border-radius:12px;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1rem;
+    display:none;align-items:center;gap:10px;
+  }
+  .result-banner.show{display:flex;}
+  .result-banner.success{background:rgba(178,141,255,.14);border:1px solid var(--violet);color:var(--violet);}
+  .result-banner.fail{background:rgba(255,111,142,.12);border:1px solid var(--coral);color:var(--coral);}
+
+  .footer-note{
+    text-align:center;color:var(--text-dim);font-size:.78rem;margin-top:36px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .footer-note a{color:var(--violet);text-decoration:none;}
+
+  @media (max-width:520px){
+    h1{font-size:1.7rem;}
+    .box{width:48px;height:48px;font-size:.95rem;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">DSA Mini Project · 02 / 02</div>
+      <h1>Binary <span>Search</span></h1>
+      <p class="subtitle">Repeatedly halves a <b>sorted</b> array — comparing the key with the middle element and discarding the half that can't contain it.</p>
+    </div>
+    <div class="header-right">
+      <div class="badge">Time · <b>O(log n)</b> &nbsp;|&nbsp; Space · <b>O(1)</b></div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+        <span class="icon" id="themeIcon">🌙</span> <span id="themeLabel">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2><span class="num">1</span>Build your array</h2>
+    <div class="controls">
+      <div class="field">
+        <label>ARRAY (comma separated, will auto-sort)</label>
+        <input type="text" id="arrInput" value="10,20,30,40,50" placeholder="e.g. 10,20,30">
+      </div>
+      <div class="field keyfield">
+        <label>KEY TO FIND</label>
+        <input type="number" id="keyInput" value="30">
+      </div>
+      <div class="btnrow">
+        <button class="btn-primary" id="searchBtn">▶ Run Search</button>
+        <button class="btn-ghost" id="resetBtn">Reset</button>
+      </div>
+    </div>
+    <p class="hint">Binary search only works on a <b>sorted</b> array — yours will be sorted automatically before the search begins.</p>
+    <div class="speedrow" style="margin-top:10px;">
+      Speed
+      <input type="range" id="speed" min="300" max="1800" value="850">
+      <span id="speedLabel">850ms/step</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>Visualization</h2>
+    <div class="stage" id="stage">
+      <span class="empty-msg">Enter an array and press Run Search to begin.</span>
+    </div>
+    <div class="result-banner" id="resultBanner"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">3</span>Step trace</h2>
+    <div class="log" id="log"><span class="empty-msg">Steps will appear here as the search runs…</span></div>
+  </div>
+
+  <div class="footer-note">Made by Diksha Wadekar · Data Structures &amp; Algorithms · <a href="./linear-search.html">← Try Linear Search</a></div>
+</div>
+
+<script>
+const arrInput = document.getElementById('arrInput');
+const keyInput = document.getElementById('keyInput');
+const searchBtn = document.getElementById('searchBtn');
+const resetBtn = document.getElementById('resetBtn');
+const stage = document.getElementById('stage');
+const log = document.getElementById('log');
+const resultBanner = document.getElementById('resultBanner');
+const speed = document.getElementById('speed');
+const speedLabel = document.getElementById('speedLabel');
+
+let running = false;
+
+speed.addEventListener('input', () => speedLabel.textContent = speed.value + 'ms/step');
+
+function parseArray(){
+  return arrInput.value.split(',').map(s=>s.trim()).filter(s=>s!=='').map(Number);
+}
+
+function renderStage(arr){
+  stage.innerHTML = '';
+  arr.forEach((val, i) => {
+    const box = document.createElement('div');
+    box.className = 'box range';
+    box.id = 'box-' + i;
+    box.innerHTML = val + `<span class="idx">i=${i}</span>`;
+    stage.appendChild(box);
+  });
+}
+
+function clearPointers(){
+  document.querySelectorAll('.pointer').forEach(p => p.remove());
+}
+
+function setPointer(i, label, cls){
+  const box = document.getElementById('box-'+i);
+  if(!box) return;
+  const p = document.createElement('span');
+  p.className = 'pointer ' + cls;
+  p.textContent = label;
+  box.appendChild(p);
+}
+
+function addLog(html, cls){
+  const empty = log.querySelector('.empty-msg');
+  if(empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = 'step ' + (cls||'');
+  div.innerHTML = html;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+function setControlsDisabled(disabled){
+  searchBtn.disabled = disabled;
+  arrInput.disabled = disabled;
+  keyInput.disabled = disabled;
+}
+
+async function runBinarySearch(){
+  if(running) return;
+  let arr = parseArray();
+  const key = Number(keyInput.value);
+
+  if(arr.length === 0){
+    addLog(`<span class="miss">Please enter a valid array first.</span>`);
+    return;
+  }
+  if(Number.isNaN(key)){
+    addLog(`<span class="miss">Please enter a valid numeric key.</span>`);
+    return;
+  }
+
+  const wasUnsorted = JSON.stringify(arr) !== JSON.stringify([...arr].sort((a,b)=>a-b));
+  arr = [...arr].sort((a,b)=>a-b);
+  arrInput.value = arr.join(',');
+
+  running = true;
+  setControlsDisabled(true);
+  log.innerHTML = '';
+  resultBanner.className = 'result-banner';
+  resultBanner.innerHTML = '';
+  renderStage(arr);
+
+  if(wasUnsorted){
+    addLog(`Array wasn't sorted — sorted it first: <b>[${arr.join(', ')}]</b>`);
+    await sleep(300);
+  }
+
+  const delay = Number(speed.value);
+  let low = 0, high = arr.length - 1;
+  let foundAt = -1;
+  let steps = 0;
+
+  while(low <= high){
+    steps++;
+    clearPointers();
+    for(let i=0;i<arr.length;i++){
+      const box = document.getElementById('box-'+i);
+      box.classList.remove('mid');
+      if(i < low || i > high) box.classList.add('eliminated');
+    }
+    setPointer(low, 'low', 'low');
+    setPointer(high, 'high', 'high');
+
+    const mid = Math.floor((low + high) / 2);
+    const midBox = document.getElementById('box-'+mid);
+    midBox.classList.add('mid');
+    setPointer(mid, 'mid', 'mid');
+
+    addLog(`Step ${steps}: low=<b>${low}</b>, high=<b>${high}</b> → mid=<b>${mid}</b> (value <b>${arr[mid]}</b>)`);
+    await sleep(delay);
+
+    if(arr[mid] === key){
+      midBox.classList.remove('mid');
+      midBox.classList.add('match');
+      addLog(`<b>Match!</b> arr[${mid}] = ${key}`, 'hit');
+      foundAt = mid;
+      break;
+    } else if(arr[mid] < key){
+      addLog(`${arr[mid]} &lt; ${key} → discard left half, search right`);
+      low = mid + 1;
+    } else {
+      addLog(`${arr[mid]} &gt; ${key} → discard right half, search left`);
+      high = mid - 1;
+    }
+    await sleep(200);
+  }
+
+  await sleep(200);
+  clearPointers();
+  resultBanner.classList.add('show');
+  if(foundAt !== -1){
+    resultBanner.classList.add('success');
+    resultBanner.innerHTML = `✅ Successful search — key <b>${key}</b> found at position <b>${foundAt + 1}</b> (index ${foundAt}) in <b>${steps}</b> step(s).`;
+  } else {
+    resultBanner.classList.add('fail');
+    resultBanner.innerHTML = `❌ Unsuccessful search — key <b>${key}</b> is not present in the array (checked in <b>${steps}</b> step(s)).`;
+    addLog(`Search space exhausted (low &gt; high). Key not found.`, 'miss');
+  }
+
+  running = false;
+  setControlsDisabled(false);
+}
+
+searchBtn.addEventListener('click', runBinarySearch);
+resetBtn.addEventListener('click', () => {
+  arrInput.value = '10,20,30,40,50';
+  keyInput.value = '30';
+  stage.innerHTML = '<span class="empty-msg">Enter an array and press Run Search to begin.</span>';
+  log.innerHTML = '<span class="empty-msg">Steps will appear here as the search runs…</span>';
+  resultBanner.className = 'result-banner';
+  resultBanner.innerHTML = '';
+});
+
+renderStage(parseArray());
+
+/* theme toggle */
+(function(){
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  const KEY = 'search-viz-theme';
+
+  function apply(theme){
+    if(theme === 'light'){
+      root.setAttribute('data-theme','light');
+      icon.textContent = '☀️';
+      label.textContent = 'Light';
+    } else {
+      root.removeAttribute('data-theme');
+      icon.textContent = '🌙';
+      label.textContent = 'Dark';
+    }
+  }
+
+  let saved = null;
+  try{ saved = localStorage.getItem(KEY); }catch(e){}
+  if(!saved){
+    saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+  }
+  apply(saved);
+
+  btn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    const next = current === 'light' ? 'dark' : 'light';
+    apply(next);
+    try{ localStorage.setItem(KEY, next); }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
+
