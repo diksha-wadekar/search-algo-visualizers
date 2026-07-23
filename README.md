@@ -22,11 +22,11 @@ An interactive visualizer built to demonstrate how Linear Search and Binary Sear
 1. Clone the repo
 2. Open `index.html` in any browser
    or
-3. View the live demo: [Live Demo](your-github-pages-link)
+3. View the live demo: [Live Demo](https://diksha-wadekar.github.io/search-algo-visualizers/)
 
 ## Screenshots
 Linear Search:
-![Linear Search](screenshot-linear.png)
+![Linear Search](linear-search.png)
 
 Binary Search:
-![Binary Search](screenshot-binary.png)
+![Binary Search](binary-search.png)
